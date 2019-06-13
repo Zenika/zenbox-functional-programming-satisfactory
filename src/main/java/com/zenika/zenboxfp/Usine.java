@@ -3,7 +3,6 @@ package com.zenika.zenboxfp;
 public class Usine {
     private final int capacitéStock;
 
-    private boolean problèmeDeStock = true;
     private double cadence;
     private int stockEntrée;
     private int stockSortie;
@@ -14,10 +13,6 @@ public class Usine {
 
     public int getCapacitéStock() {
         return capacitéStock;
-    }
-
-    public boolean isProblèmeDeStock() {
-        return problèmeDeStock;
     }
 
     public double getCadence() {
