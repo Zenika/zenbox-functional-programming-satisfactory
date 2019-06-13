@@ -7,8 +7,6 @@ public class Usine {
     private double cadence;
     private int stockEntrée;
     private int stockSortie;
-    private double complétionPièceCourante;
-    private Parc parc;
 
     public Usine(int capacitéStock) {
         this.capacitéStock = capacitéStock;
