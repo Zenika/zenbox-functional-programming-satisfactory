@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.Set;
 
 public class Parc {
-    public static final long UPDATE_RATE_MS = 1000;
+    public static final long INTERVAL_TIC_TAC_MS = 1000;
 
     private final Set<Usine> usines;
     private final int productionElectrique;
@@ -15,13 +15,13 @@ public class Parc {
         this.productionElectrique = productionElectrique;
     }
 
-    @Scheduled(fixedRate = UPDATE_RATE_MS)
-    public void tic() {
+    @Scheduled(fixedRate = INTERVAL_TIC_TAC_MS)
+    public void tictac() {
         if (estDisjoncté()) {
             return;
         }
         for (Usine usine : usines) {
-            usine.tic(UPDATE_RATE_MS);
+            usine.tictac(INTERVAL_TIC_TAC_MS);
         }
     }
 

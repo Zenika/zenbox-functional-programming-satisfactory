@@ -55,7 +55,7 @@ public class Usine {
         return quantité - àStocker;
     }
 
-    public void tic(long durée) {
+    public void tictac(long durée) {
         // TODO?
     }
 
