@@ -39,4 +39,9 @@ public class Controller {
     public int livrer(@PathVariable("id") int id, @RequestBody int quantité) {
         return parc.livrer(id, quantité);
     }
+
+    @GetMapping("/parc/historique")
+    public List<EtatParc> historique(@RequestParam(value = "depuis", defaultValue = "0") int depuis) {
+        return parc.historique(depuis <= 0 ? Integer.MAX_VALUE : depuis);
+    }
 }

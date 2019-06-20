@@ -3,6 +3,7 @@ package com.zenika.zenboxfp;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Parc {
@@ -11,7 +12,7 @@ public class Parc {
     private EtatParc etat;
 
     public Parc(List<Usine> usines, int productionElectrique) {
-        this.etat = new EtatParc(usines, productionElectrique);
+        this.etat = new EtatParc(usines, productionElectrique, null);
     }
 
     public List<Usine> getUsines() {
@@ -65,5 +66,15 @@ public class Parc {
             consommationTotale += usine.getConsommation();
         }
         return consommationTotale > etat.productionElectrique;
+    }
+
+    public List<EtatParc> historique(int depuis) {
+        List<EtatParc> historique = new LinkedList<>();
+        EtatParc current = etat;
+        while (current != null && historique.size() < depuis) {
+            historique.add(current);
+            current = current.etatPrécédent;
+        }
+        return historique;
     }
 }
