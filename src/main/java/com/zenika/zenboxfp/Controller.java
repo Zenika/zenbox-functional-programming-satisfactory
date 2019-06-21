@@ -44,4 +44,9 @@ public class Controller {
     public List<EtatParc> historique(@RequestParam(value = "depuis", defaultValue = "0") int depuis) {
         return parc.historique(depuis <= 0 ? Integer.MAX_VALUE : depuis);
     }
+
+    @GetMapping("/parc/simuler")
+    public List<EtatParc> simuler(@RequestParam(value = "étapes", defaultValue = "1") int étapes) {
+        return parc.simuler(étapes);
+    }
 }

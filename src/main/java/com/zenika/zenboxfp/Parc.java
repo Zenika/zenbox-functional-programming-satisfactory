@@ -50,22 +50,7 @@ public class Parc {
 
     @Scheduled(fixedRate = INTERVAL_TIC_TAC_MS)
     public void tictac() {
-        if (estDisjoncté()) {
-            return;
-        }
-        List<Usine> usinesMisesAJour = new ArrayList<>(etat.usines.size());
-        for (Usine usine : etat.usines) {
-            usinesMisesAJour.add(usine.tictac(INTERVAL_TIC_TAC_MS));
-        }
-        etat = etat.avecUsines(usinesMisesAJour);
-    }
-
-    private boolean estDisjoncté() {
-        double consommationTotale = 0;
-        for (Usine usine : etat.usines) {
-            consommationTotale += usine.getConsommation();
-        }
-        return consommationTotale > etat.productionElectrique;
+        etat = etat.tictac(INTERVAL_TIC_TAC_MS);
     }
 
     public List<EtatParc> historique(int depuis) {
@@ -76,5 +61,16 @@ public class Parc {
             current = current.etatPrécédent;
         }
         return historique;
+    }
+
+    public List<EtatParc> simuler(int étapes) {
+        List<EtatParc> simulation = new LinkedList<>();
+        simulation.add(etat);
+        EtatParc current = etat;
+        for (int i = 0; i < étapes; i++) {
+            current = current.tictac(1000);
+            simulation.add(current);
+        }
+        return simulation;
     }
 }

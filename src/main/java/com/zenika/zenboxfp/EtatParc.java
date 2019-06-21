@@ -31,4 +31,23 @@ public class EtatParc {
         usinesMisesAJour.set(id, usine);
         return avecUsines(usinesMisesAJour);
     }
+
+    public EtatParc tictac(long temps) {
+        if (estDisjoncté()) {
+            return this;
+        }
+        List<Usine> usinesMisesAJour = new ArrayList<>(usines.size());
+        for (Usine usine : usines) {
+            usinesMisesAJour.add(usine.tictac(1000));
+        }
+        return avecUsines(usinesMisesAJour);
+    }
+
+    private boolean estDisjoncté() {
+        double consommationTotale = 0;
+        for (Usine usine : usines) {
+            consommationTotale += usine.getConsommation();
+        }
+        return consommationTotale > productionElectrique;
+    }
 }
