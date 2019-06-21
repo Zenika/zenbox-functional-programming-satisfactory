@@ -1,73 +1,53 @@
 package com.zenika.zenboxfp;
 
-import org.springframework.scheduling.annotation.Scheduled;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 public class Parc {
-    public static final long INTERVAL_TIC_TAC_MS = 1000;
+    public final List<Usine> usines;
+    public final int productionElectrique;
+    @JsonIgnore
+    public final Parc etatPrécédent;
 
-    private EtatParc etat;
-
-    public Parc(List<Usine> usines, int productionElectrique) {
-        this.etat = new EtatParc(usines, productionElectrique, null);
+    public Parc(List<Usine> usines, int productionElectrique, Parc etatPrécédent) {
+        this.usines = Collections.unmodifiableList(usines);
+        this.productionElectrique = productionElectrique;
+        this.etatPrécédent = etatPrécédent;
     }
 
-    public List<Usine> getUsines() {
-        return etat.usines;
+    public Parc avecProductionElectrique(int productionElectrique) {
+        return new Parc(usines, productionElectrique, this);
     }
 
-    public int getProductionElectrique() {
-        return etat.productionElectrique;
+    public Parc avecUsines(List<Usine> usines) {
+        return new Parc(Collections.unmodifiableList(usines), productionElectrique, this);
     }
 
-    public void setProductionElectrique(int productionElectrique) {
-        etat = etat.avecProductionElectrique(productionElectrique);
-    }
-
-    public Usine getUsine(int id) {
-        return etat.usines.get(id);
-    }
-
-    public void setCadence(int id, double cadence) {
-        Usine usineRecadencée = etat.usines.get(id).avecCadence(cadence);
-        etat = etat.avecUsine(id, usineRecadencée);
-    }
-
-    public int livrer(int id, int quantité) {
-        return appliquerTransfertStock(id, usine -> usine.livrer(quantité));
-    }
-
-    public int stocker(int id, int quantité) {
-        return appliquerTransfertStock(id, usine -> usine.stocker(quantité));
-    }
-
-    private int appliquerTransfertStock(int id, Function<Usine, ResultatTransfertStock> opérationStock) {
-        ResultatTransfertStock resultatTransfertStock = opérationStock.apply(etat.usines.get(id));
-        etat = etat.avecUsine(id, resultatTransfertStock.usineAprès);
-        return resultatTransfertStock.quantitéRendueAuJoueur;
-    }
-
-    @Scheduled(fixedRate = INTERVAL_TIC_TAC_MS)
-    public void tictac() {
-        etat = etat.tictac(INTERVAL_TIC_TAC_MS);
-    }
-
-    public List<EtatParc> historique(int depuis) {
-        return Stream.iterate(etat, etat -> etat.etatPrécédent)
-            .takeWhile(Objects::nonNull)
-            .limit(depuis)
+    public Parc avecUsine(int id, Usine nouvelleUsine) {
+        List<Usine> usinesMisesAJour = usines.stream()
+            .map(usine -> usine == usines.get(id) ? nouvelleUsine : usine)
             .collect(toList());
+        return avecUsines(usinesMisesAJour);
     }
 
-    public List<EtatParc> simuler(int étapes) {
-        return Stream.iterate(etat, etat -> etat.tictac(1000))
-            .limit(étapes)
-            .collect(toList());
+    public Parc tictac(long temps) {
+        if (estDisjoncté()) {
+            return this;
+        }
+        List<Usine> usinesMisesAJour = usines.stream()
+            .map(usine -> usine.tictac(temps))
+                .collect(toList());
+        return avecUsines(usinesMisesAJour);
+    }
+
+    private boolean estDisjoncté() {
+        double consommationTotale = usines.stream()
+            .mapToDouble(Usine::getConsommation)
+            .sum();
+        return consommationTotale > productionElectrique;
     }
 }

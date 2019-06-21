@@ -8,7 +8,7 @@ import java.util.List;
 @RestController
 public class Controller {
     @Autowired
-    Parc parc;
+    ParcManager parc;
 
     @PostMapping("/parc")
     public void ajusterProductionElectrique(@RequestBody int productionElectrique) {
@@ -41,12 +41,12 @@ public class Controller {
     }
 
     @GetMapping("/parc/historique")
-    public List<EtatParc> historique(@RequestParam(value = "depuis", defaultValue = "0") int depuis) {
+    public List<Parc> historique(@RequestParam(value = "depuis", defaultValue = "0") int depuis) {
         return parc.historique(depuis <= 0 ? Integer.MAX_VALUE : depuis);
     }
 
     @GetMapping("/parc/simuler")
-    public List<EtatParc> simuler(@RequestParam(value = "étapes", defaultValue = "1") int étapes) {
+    public List<Parc> simuler(@RequestParam(value = "étapes", defaultValue = "1") int étapes) {
         return parc.simuler(étapes);
     }
 }
