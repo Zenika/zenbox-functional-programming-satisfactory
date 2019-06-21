@@ -1,56 +1,48 @@
 package com.zenika.zenboxfp;
 
 public class Usine {
-    private final int capacitéStock;
-
-    public final EtatUsine etat;
+    public final int capacitéStock;
+    public final double cadence;
+    public final int stockEntrée;
+    public final int stockSortie;
 
     public Usine(int capacitéStock) {
+        this(capacitéStock, 0, 0, 0);
+    }
+
+    private Usine(int capacitéStock, double cadence, int stockEntrée, int stockSortie) {
         this.capacitéStock = capacitéStock;
-        this.etat = new EtatUsine(0, 0, 0);
+        this.cadence = cadence;
+        this.stockEntrée = stockEntrée;
+        this.stockSortie = stockSortie;
     }
 
-    private Usine(int capacitéStock, EtatUsine etat) {
-        this.capacitéStock = capacitéStock;
-        this.etat = etat;
+    public Usine avecCadence(double nouvelleCadence) {
+        return new Usine(capacitéStock, nouvelleCadence, stockEntrée, stockSortie);
     }
 
-    public int getCapacitéStock() {
-        return capacitéStock;
+    private Usine avecStockEntrée(int nouveauStockEntrée) {
+        return new Usine(capacitéStock, cadence, nouveauStockEntrée, stockSortie);
     }
 
-    public double getCadence() {
-        return etat.cadence;
-    }
-
-    public int getStockEntrée() {
-        return etat.stockEntrée;
-    }
-
-    public int getStockSortie() {
-        return etat.stockSortie;
+    private Usine avecStockSortie(int nouveauStockSortie) {
+        return new Usine(capacitéStock, cadence, stockEntrée, nouveauStockSortie);
     }
 
     public double getConsommation() {
-        return etat.cadence;
-    }
-
-    public Usine avecCadence(double cadence) {
-        return new Usine(capacitéStock, etat.avecCadence(cadence));
+        return cadence;
     }
 
     public ResultatTransfertStock livrer(int quantité) {
-        int àLivrer = quantité <= etat.stockSortie ? quantité : etat.stockSortie;
-        EtatUsine étatAprès = etat.avecStockSortie(etat.stockSortie - àLivrer);
-        Usine usineAprès = new Usine(capacitéStock, étatAprès);
+        int àLivrer = quantité <= stockSortie ? quantité : stockSortie;
+        Usine usineAprès = avecStockSortie(stockSortie - àLivrer);
         return new ResultatTransfertStock(àLivrer, usineAprès);
     }
 
     public ResultatTransfertStock stocker(int quantité) {
-        int placeRestante = capacitéStock - etat.stockEntrée;
+        int placeRestante = capacitéStock - stockEntrée;
         int àStocker = quantité <= placeRestante ? quantité : placeRestante;
-        EtatUsine étatAprès = etat.avecStockEntrée(etat.stockEntrée + àStocker);
-        Usine usineAprès = new Usine(capacitéStock, étatAprès);
+        Usine usineAprès = avecStockEntrée(stockEntrée + àStocker);
         return new ResultatTransfertStock(quantité - àStocker, usineAprès);
     }
 
@@ -58,5 +50,4 @@ public class Usine {
         // TODO?
         return this;
     }
-
 }
