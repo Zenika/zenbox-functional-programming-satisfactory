@@ -2,9 +2,11 @@ package com.zenika.zenboxfp;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class Parc {
     public static final long INTERVAL_TIC_TAC_MS = 1000;
@@ -54,23 +56,15 @@ public class Parc {
     }
 
     public List<EtatParc> historique(int depuis) {
-        List<EtatParc> historique = new LinkedList<>();
-        EtatParc current = etat;
-        while (current != null && historique.size() < depuis) {
-            historique.add(current);
-            current = current.etatPrécédent;
-        }
-        return historique;
+        return Stream.iterate(etat, etat -> etat.etatPrécédent)
+            .takeWhile(Objects::nonNull)
+            .limit(depuis)
+            .collect(toList());
     }
 
     public List<EtatParc> simuler(int étapes) {
-        List<EtatParc> simulation = new LinkedList<>();
-        simulation.add(etat);
-        EtatParc current = etat;
-        for (int i = 0; i < étapes; i++) {
-            current = current.tictac(1000);
-            simulation.add(current);
-        }
-        return simulation;
+        return Stream.iterate(etat, etat -> etat.tictac(1000))
+            .limit(étapes)
+            .collect(toList());
     }
 }

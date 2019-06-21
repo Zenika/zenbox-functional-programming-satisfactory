@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class EtatParc {
     public final List<Usine> usines;
@@ -26,9 +31,10 @@ public class EtatParc {
         return new EtatParc(Collections.unmodifiableList(usines), productionElectrique, this);
     }
 
-    public EtatParc avecUsine(int id, Usine usine) {
-        List<Usine> usinesMisesAJour = new ArrayList<>(usines);
-        usinesMisesAJour.set(id, usine);
+    public EtatParc avecUsine(int id, Usine nouvelleUsine) {
+        List<Usine> usinesMisesAJour = usines.stream()
+            .map(usine -> usine == usines.get(id) ? nouvelleUsine : usine)
+            .collect(toList());
         return avecUsines(usinesMisesAJour);
     }
 
@@ -36,18 +42,16 @@ public class EtatParc {
         if (estDisjoncté()) {
             return this;
         }
-        List<Usine> usinesMisesAJour = new ArrayList<>(usines.size());
-        for (Usine usine : usines) {
-            usinesMisesAJour.add(usine.tictac(1000));
-        }
+        List<Usine> usinesMisesAJour = usines.stream()
+            .map(usine -> usine.tictac(temps))
+            .collect(toList());
         return avecUsines(usinesMisesAJour);
     }
 
     private boolean estDisjoncté() {
-        double consommationTotale = 0;
-        for (Usine usine : usines) {
-            consommationTotale += usine.getConsommation();
-        }
+        double consommationTotale = usines.stream()
+            .mapToDouble(Usine::getConsommation)
+            .sum();
         return consommationTotale > productionElectrique;
     }
 }
