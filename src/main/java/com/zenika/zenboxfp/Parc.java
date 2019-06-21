@@ -4,6 +4,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -39,13 +40,15 @@ public class Parc {
     }
 
     public int livrer(int id, int quantité) {
-        ResultatTransfertStock resultatTransfertStock = etat.usines.get(id).stocker(quantité);
-        etat = etat.avecUsine(id, resultatTransfertStock.usineAprès);
-        return resultatTransfertStock.quantitéRendueAuJoueur;
+        return appliquerTransfertStock(id, usine -> usine.livrer(quantité));
     }
 
     public int stocker(int id, int quantité) {
-        ResultatTransfertStock resultatTransfertStock = etat.usines.get(id).livrer(quantité);
+        return appliquerTransfertStock(id, usine -> usine.stocker(quantité));
+    }
+
+    private int appliquerTransfertStock(int id, Function<Usine, ResultatTransfertStock> opérationStock) {
+        ResultatTransfertStock resultatTransfertStock = opérationStock.apply(etat.usines.get(id));
         etat = etat.avecUsine(id, resultatTransfertStock.usineAprès);
         return resultatTransfertStock.quantitéRendueAuJoueur;
     }
