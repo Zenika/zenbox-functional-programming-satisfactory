@@ -3,9 +3,7 @@ package com.zenika.zenboxfp;
 public class Usine {
     private final int capacitéStock;
 
-    private double cadence;
-    private int stockEntrée;
-    private int stockSortie;
+    private EtatUsine etat;
 
     public Usine(int capacitéStock) {
         this.capacitéStock = capacitéStock;
@@ -16,35 +14,35 @@ public class Usine {
     }
 
     public double getCadence() {
-        return cadence;
+        return etat.cadence;
     }
 
     public int getStockEntrée() {
-        return stockEntrée;
+        return etat.stockEntrée;
     }
 
     public int getStockSortie() {
-        return stockSortie;
+        return etat.stockSortie;
     }
 
     public double getConsommation() {
-        return cadence;
+        return etat.cadence;
     }
 
     public void setCadence(double cadence) {
-        this.cadence = cadence;
+        etat = this.etat.avecCadence(cadence);
     }
 
     public int livrer(int quantité) {
-        int àLivrer = quantité <= stockSortie ? quantité : stockSortie;
-        stockSortie -= àLivrer;
+        int àLivrer = quantité <= etat.stockSortie ? quantité : etat.stockSortie;
+        etat = etat.avecStockSortie(etat.stockSortie - àLivrer);
         return àLivrer;
     }
 
     public int stocker(int quantité) {
-        int placeRestante = capacitéStock - stockEntrée;
+        int placeRestante = capacitéStock - etat.stockEntrée;
         int àStocker = quantité <= placeRestante ? quantité : placeRestante;
-        stockEntrée += àStocker;
+        etat = etat.avecStockEntrée(etat.stockEntrée + àStocker);
         return quantité - àStocker;
     }
 
