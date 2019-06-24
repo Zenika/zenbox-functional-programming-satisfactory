@@ -3,10 +3,16 @@ package com.zenika.zenboxfp;
 public class Usine {
     private final int capacitéStock;
 
-    private EtatUsine etat;
+    public final EtatUsine etat;
 
     public Usine(int capacitéStock) {
         this.capacitéStock = capacitéStock;
+        this.etat = new EtatUsine(0, 0, 0);
+    }
+
+    private Usine(int capacitéStock, EtatUsine etat) {
+        this.capacitéStock = capacitéStock;
+        this.etat = etat;
     }
 
     public int getCapacitéStock() {
@@ -29,25 +35,28 @@ public class Usine {
         return etat.cadence;
     }
 
-    public void setCadence(double cadence) {
-        etat = this.etat.avecCadence(cadence);
+    public Usine avecCadence(double cadence) {
+        return new Usine(capacitéStock, etat.avecCadence(cadence));
     }
 
-    public int livrer(int quantité) {
+    public ResultatTransfertStock livrer(int quantité) {
         int àLivrer = quantité <= etat.stockSortie ? quantité : etat.stockSortie;
-        etat = etat.avecStockSortie(etat.stockSortie - àLivrer);
-        return àLivrer;
+        EtatUsine étatAprès = etat.avecStockSortie(etat.stockSortie - àLivrer);
+        Usine usineAprès = new Usine(capacitéStock, étatAprès);
+        return new ResultatTransfertStock(àLivrer, usineAprès);
     }
 
-    public int stocker(int quantité) {
+    public ResultatTransfertStock stocker(int quantité) {
         int placeRestante = capacitéStock - etat.stockEntrée;
         int àStocker = quantité <= placeRestante ? quantité : placeRestante;
-        etat = etat.avecStockEntrée(etat.stockEntrée + àStocker);
-        return quantité - àStocker;
+        EtatUsine étatAprès = etat.avecStockEntrée(etat.stockEntrée + àStocker);
+        Usine usineAprès = new Usine(capacitéStock, étatAprès);
+        return new ResultatTransfertStock(quantité - àStocker, usineAprès);
     }
 
-    public void tictac(long durée) {
+    public Usine tictac(long durée) {
         // TODO?
+        return this;
     }
 
 }

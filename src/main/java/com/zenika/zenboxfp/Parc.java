@@ -2,6 +2,7 @@ package com.zenika.zenboxfp;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Parc {
@@ -32,15 +33,20 @@ public class Parc {
     }
 
     public void setCadence(int id, double cadence) {
-        usines.get(id).setCadence(cadence);
+        Usine usineRecadencée = usines.get(id).avecCadence(cadence);
+        usines.set(id, usineRecadencée);
     }
 
     public int livrer(int id, int quantité) {
-        return usines.get(id).livrer(quantité);
+        ResultatTransfertStock resultatTransfertStock = usines.get(id).stocker(quantité);
+        usines.set(id, resultatTransfertStock.usineAprès);
+        return resultatTransfertStock.quantitéRendueAuJoueur;
     }
 
     public int stocker(int id, int quantité) {
-        return usines.get(id).stocker(quantité);
+        ResultatTransfertStock resultatTransfertStock = usines.get(id).livrer(quantité);
+        usines.set(id, resultatTransfertStock.usineAprès);
+        return resultatTransfertStock.quantitéRendueAuJoueur;
     }
 
     @Scheduled(fixedRate = INTERVAL_TIC_TAC_MS)
@@ -49,7 +55,7 @@ public class Parc {
             return;
         }
         for (Usine usine : usines) {
-            usine.tictac(INTERVAL_TIC_TAC_MS);
+            Collections.replaceAll(usines, usine, usine.tictac(INTERVAL_TIC_TAC_MS));
         }
     }
 
